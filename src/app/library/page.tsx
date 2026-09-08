@@ -26,6 +26,12 @@ export default function LibraryPage() {
     setBreaks(loadBreaks());
   }, []);
 
+  // Seed may apply just after first paint
+  useEffect(() => {
+    const t = window.setTimeout(() => setItems(loadLibrary()), 50);
+    return () => window.clearTimeout(t);
+  }, []);
+
   function addItem(e: React.FormEvent) {
     e.preventDefault();
     setError(null);

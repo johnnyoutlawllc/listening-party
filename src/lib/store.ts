@@ -1,5 +1,7 @@
 /** Local-first library until the `party` schema ships. */
 
+import sjSeed from "@/data/sj-playlists.json";
+
 export type MediaItem = {
   id: string;
   youtubeId: string;
@@ -22,12 +24,26 @@ export type BreakTarget = {
   kind: "item" | "channel";
   key: string;
   label: string;
-  until: string | null; // ISO, or null = indefinite
+  until: string | null;
+};
+
+type SjSeed = {
+  importedAt: string;
+  source: string;
+  stats: {
+    playlists: number;
+    libraryItems: number;
+    playlistTrackSlots: number;
+    skippedNoVideo: number;
+  };
+  library: MediaItem[];
+  playlists: Playlist[];
 };
 
 const LIB = "lp.library.v1";
 const LISTS = "lp.playlists.v1";
 const BREAKS = "lp.breaks.v1";
+const SJ_META = "lp.sjImport.v1";
 
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -66,6 +82,94 @@ export function loadBreaks(): BreakTarget[] {
 
 export function saveBreaks(breaks: BreakTarget[]) {
   write(BREAKS, breaks);
+}
+
+export function sjSeedStats() {
+  return (sjSeed as SjSeed).stats;
+}
+
+export function sjSeedImportedAt() {
+  return (sjSeed as SjSeed).importedAt;
+}
+
+export function loadSjImportMeta(): { seedImportedAt: string; appliedAt: string } | null {
+  return read(SJ_META, null);
+}
+
+/**
+ * Merge Suffering Jukebox playlists into local library/playlists.
+ * SJ rows use stable ids (sj_ / sjpl_) so re-running updates them in place
+ * without wiping playlists you created in Listening Party.
+ */
+export function importSufferingJukeboxSeed(force = false): {
+  applied: boolean;
+  playlists: number;
+  libraryItems: number;
+} {
+  const seed = sjSeed as SjSeed;
+  const meta = loadSjImportMeta();
+  if (!force && meta?.seedImportedAt === seed.importedAt) {
+    return {
+      applied: false,
+      playlists: seed.stats.playlists,
+      libraryItems: seed.stats.libraryItems,
+    };
+  }
+
+  const library = loadLibrary();
+  const byYt = new Map(library.map((i) => [i.youtubeId, i]));
+  for (const item of seed.library) {
+    const existing = byYt.get(item.youtubeId);
+    if (existing) {
+      existing.title = item.title;
+      existing.channelTitle = item.channelTitle;
+      existing.thumbUrl = item.thumbUrl;
+      if (existing.id.startsWith("sj_") || !existing.id) existing.id = item.id;
+    } else {
+      const row: MediaItem = {
+        id: item.id,
+        youtubeId: item.youtubeId,
+        title: item.title,
+        channelTitle: item.channelTitle,
+        thumbUrl: item.thumbUrl,
+        addedAt: item.addedAt,
+      };
+      library.push(row);
+      byYt.set(item.youtubeId, row);
+    }
+  }
+  saveLibrary(library);
+
+  const lists = loadPlaylists().filter((p) => !p.id.startsWith("sjpl_"));
+  for (const pl of seed.playlists) {
+    lists.push({
+      id: pl.id,
+      name: pl.name,
+      itemIds: pl.itemIds,
+      visibility: pl.visibility,
+      createdAt: pl.createdAt,
+      updatedAt: pl.updatedAt,
+    });
+  }
+  // Keep SJ playlists sorted by name after local ones
+  lists.sort((a, b) => {
+    const aSj = a.id.startsWith("sjpl_") ? 1 : 0;
+    const bSj = b.id.startsWith("sjpl_") ? 1 : 0;
+    if (aSj !== bSj) return aSj - bSj;
+    return a.name.localeCompare(b.name);
+  });
+  savePlaylists(lists);
+
+  write(SJ_META, {
+    seedImportedAt: seed.importedAt,
+    appliedAt: new Date().toISOString(),
+  });
+
+  return {
+    applied: true,
+    playlists: seed.stats.playlists,
+    libraryItems: seed.stats.libraryItems,
+  };
 }
 
 /** Accepts full YouTube URLs or bare 11-char ids. */

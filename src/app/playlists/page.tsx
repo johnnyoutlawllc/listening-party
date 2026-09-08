@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  importSufferingJukeboxSeed,
   loadLibrary,
   loadPlaylists,
+  loadSjImportMeta,
   newId,
   savePlaylists,
+  sjSeedStats,
   type MediaItem,
   type Playlist,
 } from "@/lib/store";
@@ -16,10 +19,23 @@ export default function PlaylistsPage() {
   const [library, setLibrary] = useState<MediaItem[]>([]);
   const [name, setName] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [sjNote, setSjNote] = useState<string | null>(null);
+  const seedStats = sjSeedStats();
 
-  useEffect(() => {
+  function refresh() {
     setLists(loadPlaylists());
     setLibrary(loadLibrary());
+    const meta = loadSjImportMeta();
+    if (meta) {
+      setSjNote(
+        `${seedStats.playlists} Suffering Jukebox playlists · ${seedStats.libraryItems} tracks · applied ${new Date(meta.appliedAt).toLocaleString()}`
+      );
+    }
+  }
+
+  useEffect(() => {
+    importSufferingJukeboxSeed(false);
+    refresh();
   }, []);
 
   function createList(e: React.FormEvent) {
@@ -83,6 +99,17 @@ export default function PlaylistsPage() {
       <p className="mt-2 text-muted max-w-2xl">
         Build lists from your library. Sharing grants and cloud sync land next; visibility is local for now.
       </p>
+      {sjNote && <p className="mt-3 text-xs text-accent-2">{sjNote}</p>}
+      <button
+        type="button"
+        onClick={() => {
+          importSufferingJukeboxSeed(true);
+          refresh();
+        }}
+        className="mt-3 text-xs text-muted hover:text-text underline-offset-2 hover:underline"
+      >
+        Re-import Suffering Jukebox playlists
+      </button>
 
       <form onSubmit={createList} className="mt-8 flex flex-col gap-3 sm:flex-row">
         <input
