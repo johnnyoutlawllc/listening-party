@@ -127,9 +127,6 @@ export function Discover({ saved = false }: { saved?: boolean }) {
           </Link>
           <Link href="/build" className="build-feature">
             <span className="eyebrow">MAKE IT YOURS</span>
-            <span className="build-symbol">
-              <Icon name="plus" />
-            </span>
             <h2>
               You have
               <br />
@@ -267,7 +264,7 @@ export function Discover({ saved = false }: { saved?: boolean }) {
         <Link href="/" className="footer-brand">
           <BrandMark size={34} />
           <span className="footer-brand-copy">
-            <span>listeningparty.</span>
+            <span>listeningparty.stream</span>
             <span className="brand-tagline">JOIN THE LISTENING PARTY</span>
           </span>
         </Link>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "./Icon";
 import { BrandLogo } from "./BrandLogo";
+import { AuthControls } from "./AuthControls";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -28,10 +29,13 @@ export function SiteHeader() {
           </Link>
         ))}
       </nav>
-      <Link href="/build" className="button primary header-build">
-        <Icon name="plus" />
-        <span>Build a Playlist</span>
-      </Link>
+      <div className="header-actions">
+        <AuthControls />
+        <Link href="/build" className="button primary header-build">
+          <Icon name="plus" />
+          <span>Build a Playlist</span>
+        </Link>
+      </div>
     </header>
   );
 }

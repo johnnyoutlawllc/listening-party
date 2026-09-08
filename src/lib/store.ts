@@ -106,6 +106,30 @@ export function loadSjImportMeta(): { seedImportedAt: string; appliedAt: string 
  * SJ rows use stable ids (sj_ / sjpl_) so re-running updates them in place
  * without wiping playlists you created in Listening Party.
  */
+/** Remove SJ seed playlists/tracks and clear the import marker on this device. */
+export function clearSufferingJukeboxImport() {
+  const library = loadLibrary().filter((item) => !item.id.startsWith("sj_"));
+  const lists = loadPlaylists().filter((p) => !p.id.startsWith("sjpl_"));
+  saveLibrary(library);
+  savePlaylists(lists);
+  if (typeof window !== "undefined") localStorage.removeItem(SJ_META);
+}
+
+export function removeLibraryItem(id: string) {
+  const library = loadLibrary().filter((item) => item.id !== id);
+  saveLibrary(library);
+  const lists = loadPlaylists().map((p) => ({
+    ...p,
+    itemIds: p.itemIds.filter((itemId) => itemId !== id),
+    updatedAt: new Date().toISOString(),
+  }));
+  savePlaylists(lists);
+}
+
+export function removePlaylist(id: string) {
+  savePlaylists(loadPlaylists().filter((p) => p.id !== id));
+}
+
 export function importSufferingJukeboxSeed(force = false): {
   applied: boolean;
   playlists: number;

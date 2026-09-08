@@ -120,3 +120,55 @@ a.more-item{text-decoration:none}
 .brand-tagline{font-size:7px;letter-spacing:.1em}
 .brand-mark{width:34px!important;height:34px!important}
 }
+
+/* --- Auth + settings --- */
+.header-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex-shrink:0}
+.auth-slot{position:relative;display:flex;align-items:center}
+.auth-loading{width:88px;height:42px;border-radius:999px;background:#ffffff0d}
+.auth-trigger{min-height:42px;white-space:nowrap}
+.auth-avatar-btn{display:flex;align-items:center;gap:10px;padding:4px 10px 4px 4px;border-radius:999px;border:1px solid #ffffff18;background:#ffffff0a;color:var(--text)}
+.auth-avatar-btn:hover{background:#ffffff14}
+.auth-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#2a2c30;font-size:13px;font-weight:700}
+.auth-avatar.fallback{background:#3a2a48;color:#f3e9ff}
+.auth-name{font-size:14px;font-weight:650;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth-panel,.auth-menu{position:absolute;right:0;top:calc(100% + 10px);z-index:40;min-width:260px;background:#171819;border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 18px 40px #000a;display:flex;flex-direction:column;gap:8px}
+.auth-panel-title{font-size:13px;font-weight:750;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.auth-provider{width:100%;justify-content:center}
+.auth-menu-item{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px;border:0;background:transparent;color:var(--text);font-size:14px;font-weight:600}
+.auth-menu-item:hover{background:#ffffff10}
+.auth-email-form{display:flex;flex-direction:column;gap:10px}
+.auth-email-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:650;color:var(--muted)}
+.auth-email-form input{border:1px solid var(--border);background:#0f1011;color:var(--text);border-radius:8px;padding:10px 12px}
+.auth-email-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.auth-email-tabs button{border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;padding:8px;font-size:13px;font-weight:650}
+.auth-email-tabs button.active{background:#ffffff12;color:var(--text)}
+.auth-email-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.auth-error,.message.error{color:#ffb4a2}
+.settings-page{display:flex;flex-direction:column;gap:22px}
+.settings-section{padding:22px 24px}
+.settings-form{display:flex;flex-direction:column;gap:16px;max-width:560px}
+.settings-form label{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:650}
+.settings-form input[type=text],.settings-form input[type=url],.settings-form input:not([type]),.settings-form input[type=email],.settings-avatar-fields input{border:1px solid var(--border);background:#0f1011;color:var(--text);border-radius:8px;padding:11px 12px}
+.settings-avatar-row{display:flex;gap:18px;align-items:flex-start}
+.settings-avatar{width:84px;height:84px;border-radius:50%;object-fit:cover;flex-shrink:0;display:grid;place-items:center;background:#2a2c30;font-size:28px;font-weight:700}
+.settings-avatar.fallback{background:#3a2a48;color:#f3e9ff}
+.settings-avatar-fields{flex:1;display:flex;flex-direction:column;gap:12px}
+.settings-file input{margin-top:6px}
+.settings-sign-in{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.settings-import-block{margin-top:18px;padding-top:18px;border-top:1px solid #ffffff12}
+.settings-import-block h3{font-size:17px;margin-bottom:8px}
+.settings-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.settings-list li{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid #ffffff12;border-radius:10px}
+.settings-list.track-imports li{grid-template-columns:48px 1fr auto}
+.settings-list.track-imports li>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.settings-list.track-imports strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.settings-list.track-imports span{font-size:12px;color:var(--muted)}
+.settings-list .cover{width:48px;height:48px}
+@media(max-width:800px){
+.header-actions{gap:8px}
+.auth-name{display:none}
+.auth-panel,.auth-menu{right:0;min-width:min(280px,90vw)}
+.settings-avatar-row{flex-direction:column}
+.settings-list li{grid-template-columns:1fr auto;grid-template-rows:auto auto}
+.settings-list.track-imports li{grid-template-columns:48px 1fr auto}
+}

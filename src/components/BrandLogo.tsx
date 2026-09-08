@@ -24,7 +24,7 @@ export function BrandLogo({
       <span className="brand-copy">
         <span className="brand-wordmark">
           listening<span className="brand-light">party</span>
-          <span className="brand-period">.</span>
+          <span className="brand-period">.stream</span>
         </span>
         {showTagline && <span className="brand-tagline">JOIN THE LISTENING PARTY</span>}
       </span>
