@@ -17,8 +17,8 @@ const display = Fraunces({
 export const metadata: Metadata = {
   title: "Listening Party",
   description:
-    "Import public YouTube into playlists, share them, discover better takes, and listen together when you want.",
-  icons: { icon: "/icon.svg" },
+    "Join the Listening Party. Import public YouTube into playlists, share them, discover better takes, and listen together when you want.",
+  icons: { icon: "/icon.svg", apple: "/logo-mark.png" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

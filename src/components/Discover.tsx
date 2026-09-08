@@ -14,6 +14,7 @@ import {
 } from "@/lib/store";
 import { Cover } from "./Cover";
 import { Icon } from "./Icon";
+import { BrandMark } from "./BrandLogo";
 import { LiveRooms } from "./LiveRooms";
 import { MoreMenu } from "./MoreMenu";
 import { AltVersionsModal } from "./AltVersionsModal";
@@ -95,7 +96,7 @@ export function Discover({ saved = false }: { saved?: boolean }) {
           </p>
         </div>
         <span className="edition">
-          <span className="tiny-dot" /> THE LISTENING CLUB
+          <span className="tiny-dot" /> JOIN THE LISTENING PARTY
         </span>
       </div>
 
@@ -264,8 +265,11 @@ export function Discover({ saved = false }: { saved?: boolean }) {
 
       <footer className="site-footer">
         <Link href="/" className="footer-brand">
-          <Icon name="headphones" />
-          listeningparty.
+          <BrandMark size={34} />
+          <span className="footer-brand-copy">
+            <span>listeningparty.</span>
+            <span className="brand-tagline">JOIN THE LISTENING PARTY</span>
+          </span>
         </Link>
         <span>A little less algorithm. A little more human.</span>
         <span>AN OUTLAW APPS PROJECT ↗</span>

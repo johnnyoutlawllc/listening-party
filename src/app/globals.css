@@ -101,3 +101,22 @@ a.more-item{text-decoration:none}
 .detail-header>.cover.playlist-mosaic,.detail-header>.cover.playlist-mosaic-empty,.builder-aside .cover.playlist-mosaic,.builder-aside .cover.playlist-mosaic-empty{width:100%}
 .track-row .cover.playlist-mosaic,.track-row .cover.playlist-mosaic-empty{width:48px;height:48px;aspect-ratio:auto;flex-shrink:0;border-radius:5px}
 .library-row .cover.playlist-mosaic,.library-row .cover.playlist-mosaic-empty{width:62px;height:48px;aspect-ratio:auto}
+
+/* --- Party logo brand lockup --- */
+.brand{gap:12px}
+.brand-lockup{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{display:grid;place-items:center;flex-shrink:0;border-radius:22%;overflow:hidden;box-shadow:0 0 0 1px #ffffff14}
+.brand-mark-img{display:block;width:100%;height:100%;border-radius:22%}
+.brand-copy{display:flex;flex-direction:column;gap:2px;min-width:0;line-height:1.05}
+.brand-wordmark{font-size:23px;font-weight:750;letter-spacing:-1px;white-space:nowrap}
+.brand-tagline{font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--muted);white-space:nowrap}
+.brand:hover .brand-tagline{color:#d7c3ea}
+.footer-brand{display:flex;align-items:center;gap:10px}
+.footer-brand-copy{display:flex;flex-direction:column;gap:3px}
+.footer-brand .brand-tagline{font-size:8px}
+.footer-brand .brand-mark-img{border-radius:22%;box-shadow:0 0 0 1px #ffffff14}
+@media(max-width:560px){
+.brand-wordmark{font-size:18px}
+.brand-tagline{font-size:7px;letter-spacing:.1em}
+.brand-mark{width:34px!important;height:34px!important}
+}
