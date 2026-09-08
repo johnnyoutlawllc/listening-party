@@ -10,7 +10,7 @@ const body = Figtree({
 });
 
 const display = Fraunces({
-  variable: "--font-display",
+  variable: "--font-heading",
   subsets: ["latin"],
 });
 
@@ -32,3 +32,4 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     </html>
   );
 }
+

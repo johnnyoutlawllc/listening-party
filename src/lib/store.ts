@@ -1,6 +1,7 @@
 /** Local-first library until the `party` schema ships. */
 
 import sjSeed from "@/data/sj-playlists.json";
+import { parseYouTubeVideoId, parseYouTubePlaylistId } from "./youtube-id";
 
 export type MediaItem = {
   id: string;
@@ -18,14 +19,18 @@ export type Playlist = {
   visibility: "private" | "link" | "public";
   createdAt: string;
   updatedAt: string;
+  description?: string;
 };
 
 export type BreakTarget = {
-  kind: "item" | "channel";
+  kind: "item" | "channel" | "playlist";
   key: string;
   label: string;
   until: string | null;
 };
+
+export type CardSize = "sm" | "md" | "lg";
+const CARD_SIZE = "lp.cardSize.v1";
 
 type SjSeed = {
   importedAt: string;
@@ -141,11 +146,12 @@ export function importSufferingJukeboxSeed(force = false): {
   saveLibrary(library);
 
   const lists = loadPlaylists().filter((p) => !p.id.startsWith("sjpl_"));
+  const canonicalIds = new Map(seed.library.map(item => [item.id, byYt.get(item.youtubeId)!.id]));
   for (const pl of seed.playlists) {
     lists.push({
       id: pl.id,
       name: pl.name,
-      itemIds: pl.itemIds,
+      itemIds: pl.itemIds.map(id => canonicalIds.get(id) ?? id),
       visibility: pl.visibility,
       createdAt: pl.createdAt,
       updatedAt: pl.updatedAt,
@@ -174,28 +180,48 @@ export function importSufferingJukeboxSeed(force = false): {
 
 /** Accepts full YouTube URLs or bare 11-char ids. */
 export function parseYoutubeInput(input: string): string | null {
-  const raw = input.trim();
-  if (!raw) return null;
-  if (/^[\w-]{11}$/.test(raw)) return raw;
-  try {
-    const url = new URL(raw);
-    if (url.hostname.includes("youtu.be")) {
-      const id = url.pathname.split("/").filter(Boolean)[0];
-      return id && /^[\w-]{11}$/.test(id) ? id : null;
-    }
-    if (url.hostname.includes("youtube.com")) {
-      const v = url.searchParams.get("v");
-      if (v && /^[\w-]{11}$/.test(v)) return v;
-      const parts = url.pathname.split("/").filter(Boolean);
-      if (parts[0] === "shorts" || parts[0] === "embed" || parts[0] === "live") {
-        const id = parts[1];
-        return id && /^[\w-]{11}$/.test(id) ? id : null;
-      }
-    }
-  } catch {
-    return null;
+  return parseYouTubeVideoId(input);
+}
+
+export { parseYouTubePlaylistId };
+
+export function loadCardSize(): CardSize {
+  const value = read<string>(CARD_SIZE, "md");
+  return value === "sm" || value === "lg" || value === "md" ? value : "md";
+}
+
+export function saveCardSize(size: CardSize) {
+  write(CARD_SIZE, size);
+}
+
+export function toggleBreakTarget(
+  breaks: BreakTarget[],
+  target: Omit<BreakTarget, "until"> & { until?: string | null },
+): BreakTarget[] {
+  const exists = breaks.some((b) => b.kind === target.kind && b.key === target.key);
+  if (exists) return breaks.filter((b) => !(b.kind === target.kind && b.key === target.key));
+  return [...breaks, { ...target, until: target.until ?? null }];
+}
+
+export function addTrackToPlaylist(playlistId: string, item: MediaItem): Playlist | null {
+  const lists = loadPlaylists();
+  const playlist = lists.find((p) => p.id === playlistId);
+  if (!playlist) return null;
+  let library = loadLibrary();
+  const existing = library.find((t) => t.id === item.id || t.youtubeId === item.youtubeId);
+  if (!existing) {
+    library = [item, ...library];
+    saveLibrary(library);
   }
-  return null;
+  const resolvedId = existing?.id || item.id;
+  if (playlist.itemIds.includes(resolvedId)) return playlist;
+  const updated: Playlist = {
+    ...playlist,
+    itemIds: [...playlist.itemIds, resolvedId],
+    updatedAt: new Date().toISOString(),
+  };
+  savePlaylists(lists.map((p) => (p.id === playlistId ? updated : p)));
+  return updated;
 }
 
 export function thumbFor(youtubeId: string) {
