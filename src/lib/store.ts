@@ -8,6 +8,8 @@ export type MediaItem = {
   youtubeId: string;
   title: string;
   channelTitle?: string;
+  /** The source album sleeve, used for playlist mosaics. */
+  albumArtUrl?: string;
   thumbUrl?: string;
   addedAt: string;
 };
@@ -152,6 +154,7 @@ export function importSufferingJukeboxSeed(force = false): {
     if (existing) {
       existing.title = item.title;
       existing.channelTitle = item.channelTitle;
+      existing.albumArtUrl = item.albumArtUrl;
       existing.thumbUrl = item.thumbUrl;
       if (existing.id.startsWith("sj_") || !existing.id) existing.id = item.id;
     } else {
@@ -160,6 +163,7 @@ export function importSufferingJukeboxSeed(force = false): {
         youtubeId: item.youtubeId,
         title: item.title,
         channelTitle: item.channelTitle,
+        albumArtUrl: item.albumArtUrl,
         thumbUrl: item.thumbUrl,
         addedAt: item.addedAt,
       };

@@ -83,6 +83,7 @@ foreach ($pl in ($playlists | Sort-Object name)) {
           youtubeId = $yt
           title = $title
           channelTitle = $artistName
+          albumArtUrl = if ($album) { [string]$album.art_url } else { $null }
           thumbUrl = "https://i.ytimg.com/vi/$yt/hqdefault.jpg"
           addedAt = if ($pt.added_at) { $pt.added_at } else { $pl.created_at }
           sourceTrackId = $tr.id

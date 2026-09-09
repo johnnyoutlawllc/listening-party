@@ -13,11 +13,16 @@ function mosaicTier(n: number) {
   return 0;
 }
 
-function uniqueThumbs(items: MediaItem[]) {
+/**
+ * Playlists are represented by the records inside them, as they are in
+ * Suffering Jukebox. A video's thumbnail is only a fallback for local uploads
+ * and older imports that have no album metadata yet.
+ */
+function uniquePlaylistArt(items: MediaItem[]) {
   const seen = new Set<string>();
   const urls: string[] = [];
   for (const item of items) {
-    const url = item.thumbUrl || (item.youtubeId ? thumbFor(item.youtubeId) : "");
+    const url = item.albumArtUrl || item.thumbUrl || (item.youtubeId ? thumbFor(item.youtubeId) : "");
     if (!url || seen.has(url)) continue;
     seen.add(url);
     urls.push(url);
@@ -37,7 +42,7 @@ export function Cover({
   className?: string;
   live?: boolean;
 }) {
-  const arts = uniqueThumbs(items);
+  const arts = uniquePlaylistArt(items);
   const n = mosaicTier(arts.length);
 
   if (!n) {
