@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "Listening Party",
   description:
     "Join the Listening Party. Import public YouTube into playlists, share them, discover better takes, and listen together when you want.",
-  icons: { icon: "/icon.svg", apple: "/logo-mark.png" },
+  icons: { icon: "/logo-mark.svg", apple: "/logo-mark.png" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -35,4 +35,3 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     </html>
   );
 }
-
