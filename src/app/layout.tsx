@@ -3,6 +3,7 @@ import { Figtree, Fraunces } from "next/font/google";
 import { AuthProvider } from "@/lib/auth";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SjSeedBootstrap } from "@/components/SjSeedBootstrap";
+import { PlayerProvider } from "@/components/PlayerProvider";
 import "./globals.css";
 
 const body = Figtree({
@@ -27,9 +28,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${body.variable} ${display.variable} h-full`}>
       <body className="min-h-full flex flex-col font-sans">
         <AuthProvider>
-          <SjSeedBootstrap />
-          <SiteHeader />
-          <main className="flex-1 w-full">{children}</main>
+          <PlayerProvider>
+            <SjSeedBootstrap />
+            <SiteHeader />
+            <main className="flex-1 w-full">{children}</main>
+          </PlayerProvider>
         </AuthProvider>
       </body>
     </html>

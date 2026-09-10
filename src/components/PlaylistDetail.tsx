@@ -6,6 +6,7 @@ import { Cover } from "./Cover";
 import { Icon } from "./Icon";
 import { MoreMenu } from "./MoreMenu";
 import { AltVersionsModal } from "./AltVersionsModal";
+import { usePlayer } from "./PlayerProvider";
 import {
   importSufferingJukeboxSeed,
   loadLibrary,
@@ -19,12 +20,12 @@ import { requestJson, asPlaylist, type SharedPlaylist } from "@/lib/shared";
 export function PlaylistDetail({ id }: { id: string }) {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [tracks, setTracks] = useState<MediaItem[]>([]);
-  const [index, setIndex] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
   const [canEdit, setCanEdit] = useState(false);
   const [altItem, setAltItem] = useState<MediaItem | null>(null);
+  const { currentTrack, playQueue } = usePlayer();
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +81,6 @@ export function PlaylistDetail({ id }: { id: string }) {
     savePlaylists(loadPlaylists().map((p) => (p.id === id ? updated : p)));
     setPlaylist(updated);
     setTracks((prev) => prev.filter((t) => t.id !== itemId));
-    setIndex(null);
   }
 
   return (
@@ -125,7 +125,7 @@ export function PlaylistDetail({ id }: { id: string }) {
                   {tracks.length} tracks · {id.startsWith("sjpl_") ? "Suffering Jukebox" : "Listening Party"}
                 </p>
                 <div className="button-row">
-                  <button disabled={!tracks.length} className="button primary" onClick={() => setIndex(0)}>
+                  <button disabled={!tracks.length} className="button primary" onClick={() => playQueue(tracks, 0)}>
                     <Icon name="play" />
                     Play playlist
                   </button>
@@ -155,33 +155,6 @@ export function PlaylistDetail({ id }: { id: string }) {
                 {notice}
               </p>
             )}
-            {index !== null && tracks[index] && (
-              <>
-                <div className="player">
-                  <iframe
-                    title={tracks[index].title}
-                    src={`https://www.youtube.com/embed/${tracks[index].youtubeId}?autoplay=1&rel=0`}
-                    allow="autoplay; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-                <div className="button-row">
-                  <button className="button secondary" disabled={index === 0} onClick={() => setIndex(index - 1)}>
-                    Previous
-                  </button>
-                  <button
-                    className="button secondary"
-                    disabled={index >= tracks.length - 1}
-                    onClick={() => setIndex(index + 1)}
-                  >
-                    Next track <Icon name="arrow" />
-                  </button>
-                  <button className="button secondary" onClick={() => setIndex(null)}>
-                    Close player
-                  </button>
-                </div>
-              </>
-            )}
             <div className="section-heading" style={{ marginTop: 30 }}>
               <h2>
                 The tracklist <span className="count">{tracks.length}</span>
@@ -194,14 +167,14 @@ export function PlaylistDetail({ id }: { id: string }) {
               {tracks.map((t, i) => (
                 <li className="track-row" key={t.id}>
                   <span className="track-number">
-                    {i === index ? <Icon name="music" /> : String(i + 1).padStart(2, "0")}
+                    {currentTrack?.id === t.id ? <Icon name="music" /> : String(i + 1).padStart(2, "0")}
                   </span>
                   <Cover name={t.title} items={[t]} />
                   <div className="track-info">
                     <h3>{t.title}</h3>
                     <p>{t.channelTitle || "YouTube"}</p>
                   </div>
-                  <button className="icon-button" aria-label={`Play ${t.title}`} onClick={() => setIndex(i)}>
+                  <button className="icon-button" aria-label={`Play ${t.title}`} onClick={() => playQueue(tracks, i)}>
                     <Icon name="play" />
                   </button>
                   <MoreMenu

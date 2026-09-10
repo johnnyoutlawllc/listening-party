@@ -44,6 +44,20 @@ $videos = Fetch-Paged "track_videos" "id,track_id,video_id,is_primary,is_playabl
 $trackById = @{}; foreach ($t in $tracks) { $trackById[$t.id] = $t }
 $albumById = @{}; foreach ($a in $albums) { $albumById[$a.id] = $a }
 $artistById = @{}; foreach ($a in $artists) { $artistById[$a.id] = $a }
+# Suffering Jukebox uses these canonical Spotify sleeves where the imported
+# album art is a video thumbnail or otherwise incomplete. Keep exported
+# playlist mosaics visually in step with the source app.
+$albumArtOverrides = @{
+  "Starlite Walker" = "https://i.scdn.co/image/ab67616d0000b2737e9c5abfc1e31c4a3244fbe0"
+  "The Natural Bridge" = "https://i.scdn.co/image/ab67616d0000b273d3be14a41b75c3fc08f8f11d"
+  "American Water" = "https://i.scdn.co/image/ab67616d0000b27325191c5b6270c93029d1c896"
+  "Tennessee" = "https://i.scdn.co/image/ab67616d0000b27350e7f783012d5a0cb26e2e5b"
+  "Bright Flight" = "https://i.scdn.co/image/ab67616d0000b27308bfa280ee61ceba224e95d1"
+  "Tanglewood Numbers" = "https://i.scdn.co/image/ab67616d0000b27349be7bcfe0807ef03dfa7be6"
+  "Lookout Mountain, Lookout Sea" = "https://i.scdn.co/image/ab67616d0000b273554b11500cdf939d8ddab83c"
+  "Purple Mountains" = "https://i.scdn.co/image/ab67616d0000b27388cea355ba046594ed548eff"
+  "All My Happiness is Gone" = "https://i.scdn.co/image/ab67616d0000b273c036c7edc0d9e0d9a152d750"
+}
 $videoByTrack = @{}
 foreach ($v in $videos) {
   if (-not $v.video_id) { continue }
@@ -78,12 +92,13 @@ foreach ($pl in ($playlists | Sort-Object name)) {
         $artist = if ($album -and $album.artist_id) { $artistById[$album.artist_id] } else { $null }
         $artistName = if ($artist) { [string]$artist.name } else { $null }
         $title = if ($artistName) { "$($tr.name) - $artistName" } else { [string]$tr.name }
+        $albumArt = if ($album -and $albumArtOverrides.ContainsKey([string]$album.name)) { $albumArtOverrides[[string]$album.name] } elseif ($album) { [string]$album.art_url } else { $null }
         $library.Add([ordered]@{
           id = "sj_$($tr.id)"
           youtubeId = $yt
           title = $title
           channelTitle = $artistName
-          albumArtUrl = if ($album) { [string]$album.art_url } else { $null }
+          albumArtUrl = $albumArt
           thumbUrl = "https://i.ytimg.com/vi/$yt/hqdefault.jpg"
           addedAt = if ($pt.added_at) { $pt.added_at } else { $pl.created_at }
           sourceTrackId = $tr.id

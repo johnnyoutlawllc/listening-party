@@ -13,15 +13,15 @@ function loadApi():Promise<Api>{
  const script=document.createElement("script");script.src="https://www.youtube.com/iframe_api";script.async=true;script.onerror=()=>{clearTimeout(timeout);apiPromise=undefined;reject(new Error("YouTube couldn't load."));};document.head.appendChild(script);
  });return apiPromise;
 }
-export function YouTubePlayer({videoId,onProgress,onEnded,sync}:{videoId:string;onProgress?:(position:number,playing:boolean)=>void;onEnded?:()=>void;sync?:{position:number;playing:boolean;updatedAt:string}}){
+export function YouTubePlayer({videoId,onProgress,onEnded,sync,autoPlay=false,playing,onPlayingChange}:{videoId:string;onProgress?:(position:number,playing:boolean)=>void;onEnded?:()=>void;sync?:{position:number;playing:boolean;updatedAt:string};autoPlay?:boolean;playing?:boolean;onPlayingChange?:(playing:boolean)=>void}){
  const holder=useRef<HTMLDivElement>(null);const player=useRef<Player|null>(null);
- const progress=useRef(onProgress);const ended=useRef(onEnded);const latestVideo=useRef(videoId);
+ const progress=useRef(onProgress);const ended=useRef(onEnded);const playingChange=useRef(onPlayingChange);const shouldAutoPlay=useRef(autoPlay);const latestVideo=useRef(videoId);
  const [ready,setReady]=useState(false);const [error,setError]=useState("");const [joined,setJoined]=useState(false);
- useEffect(()=>{progress.current=onProgress;ended.current=onEnded;},[onProgress,onEnded]);
+ useEffect(()=>{progress.current=onProgress;ended.current=onEnded;playingChange.current=onPlayingChange;},[onProgress,onEnded,onPlayingChange]);
  useEffect(()=>{latestVideo.current=videoId;},[videoId]);
  useEffect(()=>{let disposed=false;let instance:Player|null=null;
  loadApi().then(api=>{if(disposed||!holder.current)return;const target=document.createElement("div");holder.current.appendChild(target);
- instance=new api.Player(target,{width:"100%",height:"100%",videoId:latestVideo.current,playerVars:{rel:0,playsinline:1,origin:window.location.origin},events:{onReady:()=>{if(!disposed)setReady(true);},onStateChange:(e:{data:number})=>{if(e.data===0)ended.current?.();},onError:()=>setError("This video can't play here. Try the next track or open it on YouTube.")}});player.current=instance;
+ instance=new api.Player(target,{width:"100%",height:"100%",videoId:latestVideo.current,playerVars:{rel:0,playsinline:1,origin:window.location.origin},events:{onReady:()=>{if(!disposed){setReady(true);if(shouldAutoPlay.current)instance?.playVideo();}},onStateChange:(e:{data:number})=>{if(e.data===0)ended.current?.();if(e.data===1)playingChange.current?.(true);if(e.data===2)playingChange.current?.(false);},onError:()=>setError("This video can't play here. Try the next track or open it on YouTube.")}});player.current=instance;
  }).catch(e=>{if(!disposed)setError(e.message);});
  const timer=setInterval(()=>{if(player.current?.getCurrentTime)progress.current?.(player.current.getCurrentTime(),player.current.getPlayerState()===1);},1000);
  return()=>{disposed=true;clearInterval(timer);instance?.destroy();player.current=null;};
@@ -34,5 +34,6 @@ export function YouTubePlayer({videoId,onProgress,onEnded,sync}:{videoId:string;
  if(sync.playing&&player.current.getPlayerState()!==1)player.current.playVideo();
  if(!sync.playing&&player.current.getPlayerState()===1)player.current.pauseVideo();
  },[sync,joined,ready]);
+ useEffect(()=>{if(!ready||!player.current||playing===undefined)return;if(playing)player.current.playVideo();else player.current.pauseVideo();},[playing,ready]);
  return <><div className="player"><div className="youtube-mount" ref={holder}/></div>{sync&&!joined&&<button className="button primary" disabled={!ready} onClick={()=>{setJoined(true);player.current?.playVideo();}}>Join audio</button>}{error&&<p className="message" role="alert">{error} <a href={`https://www.youtube.com/watch?v=${videoId}`} target="_blank" rel="noreferrer">Open YouTube ↗</a></p>}</>;
 }
